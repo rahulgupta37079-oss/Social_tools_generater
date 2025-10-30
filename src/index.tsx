@@ -20,7 +20,7 @@ app.use('/static/*', serveStatic({ root: './public' }))
 
 async function generateWithGemini(prompt: string, apiKey: string) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,6 +37,11 @@ async function generateWithGemini(prompt: string, apiKey: string) {
   )
 
   const data = await response.json()
+  
+  if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+    throw new Error('Invalid Gemini API response: ' + JSON.stringify(data))
+  }
+  
   return data.candidates[0].content.parts[0].text
 }
 
@@ -59,6 +64,11 @@ async function generateWithGroq(prompt: string, apiKey: string) {
   )
 
   const data = await response.json()
+  
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    throw new Error('Invalid Groq API response: ' + JSON.stringify(data))
+  }
+  
   return data.choices[0].message.content
 }
 
